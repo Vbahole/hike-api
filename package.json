@@ -1,6 +1,6 @@
 {
-  "name": "api-lambda-get-one-dynamodb",
-  "version": "1.2.0",
+  "name": "hike-api",
+  "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -9,9 +9,9 @@
     "qd": "npm run package && npm run deploy"
   },
   "config": {
-    "table_name": "someTableItems"
+    "table_name": "hike"
   },
   "keywords": [],
-  "author": "Aleksandar Simovic <alexander.simovic@gmail.com>",
+  "author": "Gooss <gooss22@gmail.com>",
   "license": "MIT"
 }
