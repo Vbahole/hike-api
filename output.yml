@@ -1,0 +1,90 @@
+AWSTemplateFormatVersion: 2010-09-09
+Conditions:
+  IsCorsDefined:
+    Fn::Not:
+    - Fn::Equals:
+      - Ref: CorsOrigin
+      - ''
+Outputs:
+  ApiUrl:
+    Description: The URL of the API Gateway you invoke with a GET request to retrieve
+      all of your items in the DynamoDB Table. Don't forget to change the some-id
+      to an id in your database.
+    Value:
+      Fn::Sub: https://${GetOneApi}.execute-api.${AWS::Region}.amazonaws.com/prod/${TableName}/some-id
+  DynamoDBTableName:
+    Description: The name of the DynamoDB Table
+    Value:
+      Ref: TableName
+Parameters:
+  CorsOrigin:
+    Default: '''*'''
+    Description: (Optional) Cross-origin resource sharing (CORS) Origin. You can specify
+      a single origin, all "*" or leave empty and no CORS will be applied.
+    MaxLength: 250
+    Type: String
+  TableName:
+    AllowedPattern: ^[A-Za-z_]+$
+    ConstraintDescription: Required. Can be characters and underscore only. No numbers
+      or special characters allowed.
+    Description: (Required) The name of the existing DynamoDB table you want to get
+      one record from. Minimum 3 characters.
+    MaxLength: 50
+    MinLength: 3
+    Type: String
+Resources:
+  GetOneApi:
+    Properties:
+      DefinitionBody:
+        info:
+          title:
+            Ref: AWS::StackName
+        paths:
+          /{items}/{id}:
+            get:
+              parameters:
+              - in: path
+                name: items
+                required: true
+                type: string
+              - in: path
+                name: id
+                required: true
+                type: string
+              responses: {}
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetOneLambda.Arn}/invocations
+        swagger: 2.0
+      StageName: prod
+    Type: AWS::Serverless::Api
+  GetOneLambda:
+    Properties:
+      CodeUri: s3://app-repo-components/5d9c8f9c07eac8ae279f606c6c178953
+      Environment:
+        Variables:
+          CORS_ORIGIN:
+            Ref: CorsOrigin
+          IS_CORS: IsCorsDefined
+          PRIMARY_KEY:
+            Fn::Sub: ${TableName}Id
+          TABLE_NAME:
+            Ref: TableName
+      Events:
+        Api:
+          Properties:
+            Method: GET
+            Path: /{items}/{id}
+            RestApiId:
+              Ref: GetOneApi
+          Type: Api
+      Handler: index.handler
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: TableName
+      Runtime: nodejs12.x
+    Type: AWS::Serverless::Function
+Transform: AWS::Serverless-2016-10-31
