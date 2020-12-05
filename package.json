@@ -1,26 +1,17 @@
 {
   "name": "hike-api",
   "version": "1.0.0",
-  "description": "the api for the hike app",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "package": "aws cloudformation package --template-file template.yml --output-template-file output.yml --s3-bucket app-repo-components",
+    "deploy": "aws cloudformation deploy --template-file output.yml --stack-name api-lambda-get-one-dynamodb --capabilities CAPABILITY_IAM --parameter-overrides TableName=$npm_package_config_table_name",
+    "qd": "npm run package && npm run deploy"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Vbahole/hike-api.git"
+  "config": {
+    "table_name": "hike"
   },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Vbahole/hike-api/issues"
-  },
-  "homepage": "https://github.com/Vbahole/hike-api#readme",
-  "dependencies": {
-    "app-root-path": "3.0.0",
-    "body-parser": "^1.19.0",
-    "cookie-parser": "^1.4.5",
-    "express": "^4.17.1",
-    "aws-sdk": "2.734.0"
-  }
+  "keywords": [],
+  "author": "Gooss <gooss22@gmail.com>",
+  "license": "MIT"
 }
